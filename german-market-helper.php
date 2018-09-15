@@ -16,16 +16,20 @@ class German_Market_Helper {
 	public function __construct() {
 		// make sure the functions of this plugin load after all other plugins
 		\add_action( 'init', [ $this, 'german_market_helper_function' ], 100 );
+		// before downloading PDF in backend
+		\add_action( 'wp_wc_invoice_pdf_before_backend_download', [ $this, 'german_market_helper_function' ], 10, 1 );
+		// before downloading PDF in frontend
+		\add_action( 'wp_wc_invoice_pdf_before_frontend_download', [ $this, 'german_market_helper_function' ], 10, 1 );
 		// on changing checkout settings, recheck for KUR
-		\add_action( 'woocommerce_checkout_update_order_review', [ $this, 'german_market_helper_function' ] );
+		\add_action( 'woocommerce_checkout_update_order_review', [ $this, 'german_market_helper_function' ], 10, 1 );
 	}
 	
 	/**
 	 * Helper function.
 	 * 
-	 * param	string		$data The changed data during Ajax changes
+	 * param	string|object		$data The changed data during Ajax changes
 	 */
-	public function german_market_helper_function( string $data = '' ) {
+	public function german_market_helper_function( $data ) {
 		// check if WooCommerce and German Market are available
 		if (
 			! \is_object( WC() )
@@ -46,13 +50,17 @@ class German_Market_Helper {
 		}
 		else {
 			$country_code = '';
+			
+			if ( \is_admin() && \wp_doing_ajax() && \is_object( $data ) ) {
+				$country_code = $data->get_billing_country();
+			}
 		}
 		
 		// for German users, enable KUR in the frontend
 		// the backend is still fully accessible (otherwise taxes couldn't be
 		// changed)
 		// every non-German users would have the full VAT rates
-		if ( $country_code === 'DE' && ! \is_admin() ) {
+		if ( $country_code === 'DE' && ( ! \is_admin() || \is_admin() && \wp_doing_ajax() ) ) {
 			\update_option( \WGM_Helper::get_wgm_option( 'woocommerce_de_kleinunternehmerregelung' ), 'on' );
 		}
 		else {
