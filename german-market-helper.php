@@ -32,15 +32,20 @@ class German_Market_Helper {
 			|| ! \class_exists( 'WGM_Helper' )
 		) return;
 		
-		// get country code
-		$country_code = WC()->customer->get_shipping_country();
-		
-		// get country code from data in checkout
-		if ( ! empty( $data ) ) {
-			\parse_str( $data, $post_data );
+		if ( ! \is_admin() ) {
+			// get country code
+			$country_code = WC()->customer->get_shipping_country();
 			
-			// use either the new data if available or stay on the old value
-			$country_code = ( $post_data['billing_country'] ?? $country_code );
+			// get country code from data in checkout
+			if ( ! empty( $data ) ) {
+				\parse_str( $data, $post_data );
+				
+				// use either the new data if available or stay on the old value
+				$country_code = ( $post_data['billing_country'] ?? $country_code );
+			}
+		}
+		else {
+			$country_code = '';
 		}
 		
 		// for German users, enable KUR in the frontend
