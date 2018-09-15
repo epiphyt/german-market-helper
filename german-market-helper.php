@@ -16,23 +16,35 @@ class German_Market_Helper {
 	public function __construct() {
 		// make sure the functions of this plugin load after all other plugins
 		\add_action( 'init', [ $this, 'german_market_helper_function' ], 100 );
+		// on changing checkout settings, recheck for KUR
+		\add_action( 'woocommerce_checkout_update_order_review', [ $this, 'german_market_helper_function' ] );
 	}
 	
 	/**
 	 * Helper function.
+	 * 
+	 * param	string		$data The changed data during Ajax changes
 	 */
-	public function german_market_helper_function() {
+	public function german_market_helper_function( string $data = '' ) {
 		// check if WooCommerce and German Market are available
 		if (
-			! \class_exists( 'WC_Geolocation' )
+			! \is_object( WC() )
 			|| ! \class_exists( 'WGM_Helper' )
 		) return;
 		
-		$location = \WC_Geolocation::geolocate_ip();
-		$country_code = ( isset( $location['country'] ) ? $location['country'] : '' );
+		// get country code
+		$country_code = WC()->customer->get_shipping_country();
+		
+		// get country code from data in checkout
+		if ( ! empty( $data ) ) {
+			\parse_str( $data, $post_data );
+			
+			// use either the new data if available or stay on the old value
+			$country_code = ( $post_data['billing_country'] ?? $country_code );
+		}
 		
 		// for German users, enable KUR in the frontend
-		// the backend is still fully accessible (otherwise taxes couldn't be 
+		// the backend is still fully accessible (otherwise taxes couldn't be
 		// changed)
 		// every non-German users would have the full VAT rates
 		if ( $country_code === 'DE' && ! \is_admin() ) {

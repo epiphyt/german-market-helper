@@ -10,3 +10,4 @@ This plugin has no settings. If you neither need the requirement to apply taxes 
 
 * WooCommerce
 * WooCommerce German Market
+* PHP 7
