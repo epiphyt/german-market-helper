@@ -4,9 +4,9 @@ namespace epiphyt\German_Market_Helper;
 /*
 Plugin Name:	German Market Helper
 Description:	A small utility to fix some weird German Market settings/features.
-Version:		1.0.0
+Version:		1.0.1
 Author:			Epiphyt
-Author URI:		https://epiph.yt
+Author URI:		https://epiph.yt/
 License:		GPL2
 */
 class German_Market_Helper {
@@ -14,6 +14,15 @@ class German_Market_Helper {
 	 * German Market Helper constructor.
 	 */
 	public function __construct() {
+		// return on Ajax or autosave
+		if (
+			( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+			|| ( defined( 'DOING_AJAX' ) && DOING_AJAX )
+			|| ( defined( 'DOING_CRON' ) && DOING_CRON )
+		) {
+			return;
+		}
+		
 		// make sure the functions of this plugin load after all other plugins
 		\add_action( 'init', [ $this, 'german_market_helper_function' ], 100 );
 		// before downloading PDF in backend
