@@ -4,7 +4,7 @@ namespace epiphyt\German_Market_Helper;
 /*
 Plugin Name:	German Market Helper
 Description:	A small utility to fix some weird German Market settings/features.
-Version:		1.0.1
+Version:		1.0.2
 Author:			Epiphyt
 Author URI:		https://epiph.yt/
 License:		GPL2
@@ -41,7 +41,8 @@ class German_Market_Helper {
 	public function german_market_helper_function( $data ) {
 		// check if WooCommerce and German Market are available
 		if (
-			! \is_object( WC() )
+			! \function_exists( 'WC' )
+			|| ! \is_object( \WC() )
 			|| ! \class_exists( 'WGM_Helper' )
 		) return;
 		
