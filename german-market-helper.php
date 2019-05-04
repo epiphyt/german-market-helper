@@ -48,7 +48,7 @@ class German_Market_Helper {
 		
 		if ( ! \is_admin() ) {
 			// get country code
-			$country_code = WC()->customer->get_shipping_country();
+			$country_code = ( WC()->customer ? WC()->customer->get_shipping_country() : '' );
 			
 			// get country code from data in checkout
 			if ( ! empty( $data ) ) {
